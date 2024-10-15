@@ -40,4 +40,5 @@ jobs:
           SECRET: ${{ secrets.SECRET }}
           SENSOR_IDX: ${{ secrets.SENSOR_IDX }}
           READ_KEY: ${{ secrets.READ_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: Rscript --verbose main.R
