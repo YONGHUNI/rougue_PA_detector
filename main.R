@@ -90,7 +90,7 @@ nowPA <- function(offset = 300){ # default value: 5 minutes
 # sensor_idx <- readLines("./data/secret/sensor_idx.txt")
 # read_key <- readLines("./data/secret/readkey.txt")
 
-ghtoken <- Sys.getenv("GITHUB_TOKEN")
+ghtoken <- Sys.getenv("TOKEN_GH")
 
 secret <- Sys.getenv("SECRET")
 sensor_idx <- Sys.getenv("SENSOR_IDX")
@@ -122,7 +122,7 @@ tryCatch({
 
     gh::gh(
         .token = ghtoken,
-        endpoint = "https://api.github.com/repos/YONGHUNI/rougue_PA_detector/issues",
+        endpoint = "POST /repos/YONGHUNI/rougue_PA_detector/issues",
         title = paste0(nowPA(), "UTC : Warning! Offline Sensor detected! (Sensor Index: ", sensor_idx,")"),
         body = paste0(nowPA(), "UTC : Warning! Offline Sensor detected!\n (Sensor Index: ", sensor_idx,")")
     )
