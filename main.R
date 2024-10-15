@@ -76,16 +76,27 @@ nowPA <- function(offset = 300){
     gsub("\\..*","",as.character(now(tzone = "UTC")-offset))
 }
 
-
-
-
+# readxl::read_xlsx(path = "./data/secret/key2Yonghun_1010.xlsx",sheet = 2)
+# 
+# jsonlite::toJSON(readxl::read_xlsx(path = "./data/secret/key2Yonghun_1010.xlsx",sheet = 2))|>
+#     charToRaw() |>
+#     base64enc::base64encode()|>
+#     writeLines("./data/secret/participant.txt")
 
 
 
 # Import the API key
-secret <- readLines("./data/secret/secret.txt")
-sensor_idx <- readLines("./data/secret/sensor_idx.txt")
-read_key <- readLines("./data/secret/readkey.txt")
+# secret <- readLines("./data/secret/secret.txt")
+# sensor_idx <- readLines("./data/secret/sensor_idx.txt")
+# read_key <- readLines("./data/secret/readkey.txt")
+
+secret <- Sys.getenv("SECRET")
+sensor_idx <- Sys.getenv("SENSOR_IDX")
+read_key <- Sys.getenv("READ_KEY")
+
+#jsonlite::read_json("./data/secret/participants.json")
+
+
 
 
 
@@ -94,5 +105,5 @@ read_key <- readLines("./data/secret/readkey.txt")
 test <- get_sensor_history(secret = secret, sensor_idx = sensor_idx, start_timestamp = nowPA(18000),
                            read_key = read_key,  fields ="pa_latency")
 
-
+print(test[,c("date","time")])
 

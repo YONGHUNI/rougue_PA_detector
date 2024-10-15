@@ -34,3 +34,10 @@ jobs:
         with:
           profile: '"packages"'
           cache-version: 2
+
+      - name: run main.R
+        env:
+          SECRET: ${{ secrets.SECRET }}
+          SENSOR_IDX: ${{ secrets.SENSOR_IDX }}
+          READ_KEY: ${{ secrets.READ_KEY }}
+        run: Rscript --verbose main.R
