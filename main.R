@@ -98,7 +98,7 @@ read_key <- Sys.getenv("READ_KEY")
 
 
 
-print(now(tzone = "UTC"))
+print(lubridate::now(tzone = "UTC"))
 
 
 tryCatch({
