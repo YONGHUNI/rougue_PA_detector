@@ -92,7 +92,6 @@ nowPA <- function(offset = 300){ # default value: 5 minutes
 
 ghtoken <- Sys.getenv("TOKEN_GH")
 
-print(ghtoken)
 
 secret <- Sys.getenv("SECRET")
 sensor_idx <- Sys.getenv("SENSOR_IDX")
