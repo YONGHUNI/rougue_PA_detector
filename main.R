@@ -124,7 +124,7 @@ tryCatch({
     gh::gh(
         .token = ghtoken,
         endpoint = "POST /repos/YONGHUNI/rougue_PA_detector/issues",
-        title = paste0("[bot] ",nowPA(), " UTC : Warning! Offline Sensor detected! (Sensor Index: ", sensor_idx,")"),
+        title = paste0("[Bot] ",nowPA(), " UTC : Warning! Offline Sensor detected! (Sensor Index: ", sensor_idx,")"),
         body = paste0(nowPA(), "UTC : Warning! Offline Sensor detected!\n (Sensor Index: ", sensor_idx,")\n@YONGHUNI please respond!")
     )
     
