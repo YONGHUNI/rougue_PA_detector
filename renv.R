@@ -3,6 +3,7 @@ library("data.table")
 library("httr")
 library("lubridate")
 library("jsonlite")
+library("gh")
 
 setwd("C:/Users/dydgn/OneDrive/Prof_Yoo/21_PAnotify")
 

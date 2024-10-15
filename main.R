@@ -71,7 +71,7 @@ get_sensor_history <- function(secret, sensor_idx, read_key = NA, privacy = NA,
 }
 
 
-nowPA <- function(offset = 300){
+nowPA <- function(offset = 300){ # default value: 5 minutes
     
     gsub("\\..*","",as.character(now(tzone = "UTC")-offset))
 }
@@ -98,12 +98,35 @@ read_key <- Sys.getenv("READ_KEY")
 
 
 
+print(now(tzone = "UTC"))
+
+
+tryCatch({
+    sensor_data <- get_sensor_history(secret = secret,
+                                      sensor_idx = sensor_idx,
+                                      start_timestamp = nowPA(),
+                                      read_key = read_key,
+                                      fields ="pa_latency"
+                                      )
+    
+    print(test[,c("date","time")])
+    
+    
+}, error = function(e) {
+    
+    print("Issuing on GitHub")
+    
+    
+    
+    gh::gh(
+        .token = Sys.getenv("GITHUB_TOKEN"),
+        endpoint = "POST /repos/user/my-repo/issues",
+        title = paste0(nowPA(), "UTC : Warning! Offline Sensor detected! (Sensor Index: ", sensor_idx,")"),
+        body = paste0(nowPA(), "UTC : Warning! Offline Sensor detected!\n (Sensor Index: ", sensor_idx,")")
+    )
+    
+})
 
 
 
-# the simplest call
-test <- get_sensor_history(secret = secret, sensor_idx = sensor_idx, start_timestamp = nowPA(18000),
-                           read_key = read_key,  fields ="pa_latency")
-
-print(test[,c("date","time")])
 
