@@ -90,6 +90,8 @@ nowPA <- function(offset = 300){ # default value: 5 minutes
 # sensor_idx <- readLines("./data/secret/sensor_idx.txt")
 # read_key <- readLines("./data/secret/readkey.txt")
 
+ghtoken <- Sys.getenv("TOKEN_GH")
+
 secret <- Sys.getenv("SECRET")
 sensor_idx <- Sys.getenv("SENSOR_IDX")
 read_key <- Sys.getenv("READ_KEY")
@@ -117,7 +119,7 @@ tryCatch({
     print("Issuing on GitHub")
     
     
-    ghtoken <- Sys.getenv("GITHUB_TOKEN")
+
     gh::gh(
         .token = ghtoken,
         endpoint = "POST /repos/YONGHUNI/rougue_PA_detector/issues",
