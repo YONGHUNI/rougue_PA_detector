@@ -90,7 +90,7 @@ nowPA <- function(offset = 300){ # default value: 5 minutes
 # sensor_idx <- readLines("./data/secret/sensor_idx.txt")
 # read_key <- readLines("./data/secret/readkey.txt")
 
-ghtoken <- Sys.getenv("TOKEN_GH")
+ghtoken <- Sys.getenv("GITHUB_TOKEN")
 
 secret <- Sys.getenv("SECRET")
 sensor_idx <- Sys.getenv("SENSOR_IDX")
