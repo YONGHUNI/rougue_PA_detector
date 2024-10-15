@@ -116,7 +116,7 @@ tryCatch({
     
 }, error = function(e) {
     
-    print("Issuing on GitHub") # print
+    print("Issuing on GitHub")
     
     
 
