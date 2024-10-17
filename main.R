@@ -107,12 +107,12 @@ print(lubridate::now(tzone = "UTC"))
 tryCatch({
     sensor_data <- get_sensor_history(secret = secret,
                                       sensor_idx = sensor_idx,
-                                      start_timestamp = nowPA(),
+                                      start_timestamp = nowPA(offset = 630),
                                       read_key = read_key,
                                       fields ="pa_latency"
                                       )
     
-    print(test[,c("date","time")])
+    print(sensor_data[,c("date","time")])
     
     
 }, error = function(e) {
