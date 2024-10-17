@@ -101,17 +101,19 @@ read_key <- Sys.getenv("READ_KEY")
 
 
 
-print(lubridate::now(tzone = "UTC"))
+
 
 
 tryCatch({
     sensor_data <- get_sensor_history(secret = secret,
                                       sensor_idx = sensor_idx,
-                                      start_timestamp = nowPA(offset = 630),
+                                      start_timestamp = nowPA(),
                                       read_key = read_key,
+                                      average = 0,
                                       fields ="pa_latency"
                                       )
     
+    cat(lubridate::now(tzone = "UTC")|>as.character())
     print(sensor_data[,c("date","time")])
     
     
