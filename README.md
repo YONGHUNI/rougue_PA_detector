@@ -16,7 +16,7 @@ We can program it to meet our needs by making a YAML file.
 
 See [GitHub Actions config yaml](https://github.com/YONGHUNI/rougue_PA_detector/blob/main/.github/workflows/check.yml) for a better understanding.
 
-**1. Cron Job, *i.e.*, Shceduled job** # every 30 minutes
+**1. Cron Job, *i.e.*, Scheduled job** # every 30 minutes
 > on:  
 > &nbsp; schedule:  
 > &nbsp; &nbsp;  \- cron: '*/30 * * * *' 
