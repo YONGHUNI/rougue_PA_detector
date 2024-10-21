@@ -119,7 +119,7 @@ tryCatch({
     
     #for testing
     msg <- paste0("[Bot] ",nowPA(), " UTC : Warning! Offline Sensor detected! (Sensor Index: ", sensor_idx,")")
-    writeLines(msg, "./msg")
+    
     
     
 }, error = function(e) {
@@ -133,7 +133,8 @@ tryCatch({
         title = msg,
         body = paste0(nowPA(), "UTC : Warning! Offline Sensor detected!\n (Sensor Index: ", sensor_idx,")\n@YONGHUNI please respond!")
     )
-    #writeLines(msg, "./msg.txt")
+    writeLines(msg, "./msg.txt")
+    #write.csv() # for handling multiple sensors
 })
 
 

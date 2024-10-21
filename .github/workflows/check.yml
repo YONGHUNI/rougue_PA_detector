@@ -66,6 +66,7 @@ jobs:
           webhook_token: ${{ secrets.WEBHOOK_TOKEN }}
           color: "#48f442"
           username: "GitHub Bot"
+          #file: "./images/message.png"
           message: ${{ env.message_content }}
 
           
