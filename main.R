@@ -100,7 +100,7 @@ read_key <- Sys.getenv("READ_KEY")
 #jsonlite::read_json("./data/secret/participants.json")
 
 
-
+print(getwd())
 
 
 
