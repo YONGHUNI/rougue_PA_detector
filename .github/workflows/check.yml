@@ -45,14 +45,28 @@ jobs:
           TOKEN_GH: ${{ secrets.TOKEN_GH }} 
         run: Rscript --verbose main.R
       
+      - name: Check for msg file
+        id: check_file
+        run: |
+          if [ -f msg ]; then
+            echo "File exists"
+            echo "file_exists=true" >> $GITHUB_ENV
+            content=$(cat msg)
+            echo "message_content=${content}" >> $GITHUB_ENV
+          else
+            echo "File does not exist"
+            echo "file_exists=false" >> $GITHUB_ENV
+          fi
+      
       - name: send message
+        if: env.file_exists == 'true'
         uses: appleboy/discord-action@master
         with:
           webhook_id: ${{ secrets.WEBHOOK_ID }}
           webhook_token: ${{ secrets.WEBHOOK_TOKEN }}
           color: "#48f442"
           username: "GitHub Bot"
-          message: The ${{ github.event_name }} event triggered first step - for testing!
+          message: ${{ env.message_content }}
 
           
           

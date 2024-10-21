@@ -100,11 +100,12 @@ read_key <- Sys.getenv("READ_KEY")
 #jsonlite::read_json("./data/secret/participants.json")
 
 
-print(getwd())
+#print(getwd())
 
 
 
 tryCatch({
+    
     sensor_data <- get_sensor_history(secret = secret,
                                       sensor_idx = sensor_idx,
                                       start_timestamp = nowPA(),
@@ -113,23 +114,26 @@ tryCatch({
                                       fields ="pa_latency"
                                       )
     
-    cat(lubridate::now(tzone = "UTC")|>as.character())
+    cat(lubridate::now(tzone = "UTC")|>as.character(),"\n")
     print(sensor_data[,c("date","time")])
+    
+    #for testing
+    msg <- paste0("[Bot] ",nowPA(), " UTC : Warning! Offline Sensor detected! (Sensor Index: ", sensor_idx,")")
+    writeLines(msg, "./msg.txt")
     
     
 }, error = function(e) {
     
-    print("Issuing on GitHub")
-    
-    
+    cat("Issuing on GitHub\n")
+    #msg <- paste0("[Bot] ",nowPA(), " UTC : Warning! Offline Sensor detected! (Sensor Index: ", sensor_idx,")")
 
     gh::gh(
         .token = ghtoken,
         endpoint = "POST /repos/YONGHUNI/rougue_PA_detector/issues",
-        title = paste0("[Bot] ",nowPA(), " UTC : Warning! Offline Sensor detected! (Sensor Index: ", sensor_idx,")"),
+        title = msg,
         body = paste0(nowPA(), "UTC : Warning! Offline Sensor detected!\n (Sensor Index: ", sensor_idx,")\n@YONGHUNI please respond!")
     )
-    
+    #writeLines(msg, "./msg.txt")
 })
 
 
