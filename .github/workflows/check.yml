@@ -1,9 +1,9 @@
 on:
   schedule:
-    - cron: '*/15 * * * *' # every 5 minutes
-#  workflow_dispatch:
-#  push:
-#    branches: main
+    - cron: '*/30 * * * *' # every 30 minutes
+  workflow_dispatch:
+  push:
+    branches: main
 
 name: detecting rogue sensor
 
@@ -44,3 +44,13 @@ jobs:
           READ_KEY: ${{ secrets.READ_KEY }}
           TOKEN_GH: ${{ secrets.TOKEN_GH }} 
         run: Rscript --verbose main.R
+      
+      - name: send message
+        uses: appleboy/discord-action@master
+        with:
+          webhook_id: ${{ secrets.WEBHOOK_ID }}
+          webhook_token: ${{ secrets.WEBHOOK_TOKEN }}
+          message: The ${{ github.event_name }} event triggered first step - for testing
+
+          
+          
