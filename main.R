@@ -117,15 +117,12 @@ tryCatch({
     cat(lubridate::now(tzone = "UTC")|>as.character(),"\n")
     print(sensor_data[,c("date","time")])
     
-    #for testing
-    msg <- paste0("[Bot] ",nowPA(), " UTC : Warning! Offline Sensor detected! (Sensor Index: ", sensor_idx,")")
-    
     
     
 }, error = function(e) {
     
     cat("Issuing on GitHub\n")
-    #msg <- paste0("[Bot] ",nowPA(), " UTC : Warning! Offline Sensor detected! (Sensor Index: ", sensor_idx,")")
+    msg <- paste0("[Bot] ",nowPA(), " UTC : Warning! Offline Sensor detected! (Sensor Index: ", sensor_idx,")")
 
     gh::gh(
         .token = ghtoken,
