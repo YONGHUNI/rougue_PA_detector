@@ -130,7 +130,7 @@ tryCatch({
         title = msg,
         body = paste0(nowPA(), "UTC : Warning! Offline Sensor detected!\n (Sensor Index: ", sensor_idx,")\n@YONGHUNI please respond!")
     )
-    writeLines(msg, "./msg.txt")
+    writeLines(msg, "./msg")
     #write.csv() # for handling multiple sensors
 })
 
