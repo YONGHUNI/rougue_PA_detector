@@ -40,9 +40,10 @@ jobs:
       - name: run main.R
         env:
           SECRET: ${{ secrets.SECRET }}
-          SENSOR_IDX: ${{ secrets.SENSOR_IDX }}
-          READ_KEY: ${{ secrets.READ_KEY }}
-          TOKEN_GH: ${{ secrets.TOKEN_GH }} 
+          DATABASE: ${{ secrets.DATABASE }}
+          #SENSOR_IDX: ${{ secrets.SENSOR_IDX }}
+          #READ_KEY: ${{ secrets.READ_KEY }}
+          #TOKEN_GH: ${{ secrets.TOKEN_GH }} 
         run: Rscript --verbose main.R
       
       - name: Check for msg file
