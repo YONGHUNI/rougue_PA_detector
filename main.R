@@ -85,7 +85,7 @@ nowPA <- function(offset = 300){ # default value: 5 minutes
   #     base64enc::base64encode()|>
   #     writeLines("./data/secret/participant.txt")
 
-
+library("data.table")
 
 if (Sys.info()[[1]]=="Windows") {
     
@@ -97,7 +97,8 @@ if (Sys.info()[[1]]=="Windows") {
     database <- readLines("./data/secret/participant.txt") |>
         base64enc::base64decode() |>
         rawToChar() |>
-        jsonlite::fromJSON()
+        jsonlite::fromJSON() |>
+        as.data.table()
     
 } else{
     
