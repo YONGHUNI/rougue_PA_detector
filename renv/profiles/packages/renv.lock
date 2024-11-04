@@ -29,6 +29,16 @@
       ],
       "Hash": "c39f4155b3ceb1a9a2799d700fbd4b6a"
     },
+    "base64enc": {
+      "Package": "base64enc",
+      "Version": "0.1-3",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R"
+      ],
+      "Hash": "543776ae6848fde2f48ff3816d0628bc"
+    },
     "cli": {
       "Package": "cli",
       "Version": "3.6.3",
