@@ -167,8 +167,8 @@ if (nrow(rogue_sensors)!=0) {
     cat("Issuing on Discord\n")
     msg <- paste0("[Bot] ", 
                   nowPA(), 
-                  " UTC : Warning! Offline Sensor detected! Sensor Index: [",
-                  paste(rogue_sensors$`sensor index`,collapse = ", "),
+                  " UTC : Warning! Offline sensors detected! Sensor Index: [",
+                  paste(rogue_sensors$`sensor index`,collapse = "] ["),
                   "] Please refer to the CSV file attached.")
     
     writeLines(msg, "./msg")
