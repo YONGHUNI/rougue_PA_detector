@@ -105,7 +105,11 @@ if (Sys.info()[[1]]=="Windows") {
     # For github actions Ubuntu env
     
     secret <- Sys.getenv("SECRET")
-    database <- Sys.getenv("DATABASE")
+    database <- Sys.getenv("DATABASE")|>
+        base64enc::base64decode() |>
+        rawToChar() |>
+        jsonlite::fromJSON() |>
+        as.data.table()
     
     
     #deprecated
