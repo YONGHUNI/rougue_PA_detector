@@ -52,7 +52,7 @@ jobs:
           if [ -f msg ]; then
             echo "File exists"
             echo "file_exists=true" >> $GITHUB_ENV
-            content=$(tr '\n' '|' < msg | tr -d '\r')
+            content=$(cat msg)
             echo "message_content=${content}" >> $GITHUB_ENV
           else
             echo "File does not exist"
