@@ -42,7 +42,7 @@ get_sensor_history <- function(secret, sensor_idx, read_key = NA, privacy = NA,
         Encoding(temp) <- "UTF-8"
         temp <- jsonlite::fromJSON(temp)
         
-        if (is.null(temp$data[1][[1]])) stop("No Returned Entities! Check the parameter again!") 
+        if (is.null(temp$data[1][[1]])) stop("No Returned Entities! - Sensor Offline") 
         
         result <- temp$data |> as.data.table() |> `colnames<-`(temp$fields)
         
@@ -62,7 +62,7 @@ get_sensor_history <- function(secret, sensor_idx, read_key = NA, privacy = NA,
             "Status code: ",apiResult$status_code, "\n",
             temp$error,": ",temp$description,"\n"
         )
-        
+        stop(paste0("No Returned Entities!","Status code: ",apiResult$status_code,", ",temp$error,": ",temp$description,"\n"))
     }
     
     
@@ -121,7 +121,6 @@ if (Sys.info()[[1]]=="Windows") {
 
 rogue_sensors <-  data.table()
 
-
 # 12 sensors + Dr.Yoo's sensor
 
 for (i in 1:length(database$`sensor index`)) {
@@ -155,7 +154,7 @@ for (i in 1:length(database$`sensor index`)) {
         #     body = paste0(nowPA(), "UTC : Warning! Offline Sensor detected!\n (Sensor Index: ", sensor_idx,")\n@YONGHUNI please respond!")
         # )
         
-        rogue_sensors <- rbind(database[i,],rogue_sensors)
+        rogue_sensors <<- cbind(database[i,],e[[1]])|>rbind(rogue_sensors)
         
         
     })
