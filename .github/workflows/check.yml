@@ -1,8 +1,8 @@
 on:
   schedule:
     cron:
-      - '0 14,16,18,20,22 * * 1-5' # every 2 hours on weekdays(ET time, daytime)
-      - '0 19 * * 6,7' #  on weekends(ET time, only 14:00)
+      - 0 14,16,18,20,22 * * 1-5 # every 2 hours on weekdays(ET time, daytime)
+      - 0 19 * * 6,7 # on weekends(ET time, only 14:00)
     #- cron: '*/30 * * * *' # every 30 minutes
   workflow_dispatch:
   push:
