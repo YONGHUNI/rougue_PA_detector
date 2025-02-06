@@ -71,6 +71,84 @@ get_sensor_history <- function(secret, sensor_idx, read_key = NA, privacy = NA,
 }
 
 
+
+checkNconcat <- function(to_be_concat_vector){
+    
+    if(max(grepl(" ", read_keys, fixed = T))) {
+        
+        strbuild <- paste("\n",
+            deparse1(substitute(to_be_concat_vector)),
+            "param error... Should be an R character vector(array)")
+        
+        stop(strbuild)
+        
+        
+    } else {
+        
+        return(paste(to_be_concat_vector, collapse = ','))
+        
+    }
+        
+    
+}
+
+
+
+get_sensors_data <- function(fields, location_type = NA, read_keys = NA, show_only = NA, modified_since = NA,
+                             max_age = NA, nwlat = NA, nwlng = NA, selat = NA, selng = NA){
+    
+    require("data.table")
+    require("httr")
+    
+    concat_fields <- checkNconcat(fields)
+    concat_read_keys <- checkNconcat(read_keys)
+    concat_show_only <- checkNconcat(show_only)
+    
+     
+    
+    qlist <-  Filter(Negate(anyNA),list(
+        `read_key` = read_key,      # 
+        `fields` = concat_fields
+    ))
+    
+    
+    # calling an API
+    apiResult <- httr::GET( 
+        url = paste0("https://api.purpleair.com/v1/sensors/",sensor_idx),
+        add_headers(`X-API-Key` = secret),
+        query = qlist
+    )
+    
+    
+    if (apiResult$status_code == "200"){
+        cat("ResultCode OK!\n")
+        temp <- rawToChar(apiResult$content)
+        Encoding(temp) <- "UTF-8"
+        temp <- jsonlite::fromJSON(temp,flatten = T) 
+        
+        #cat("===============API Result===============\n\n")
+        #print(unlist(temp))
+        #cat("\n\n===============End of Result===============\n\n")
+        
+        
+        return(temp)
+        
+        
+    }else{
+        
+        temp <- rawToChar(apiResult$content) |> jsonlite::fromJSON()
+        cat(sep = "",
+            "Bad Request Exception in / Unexpected Error\n",
+            "Status code: ",apiResult$status_code, "\n",
+            temp$error,": ",temp$description,"\n"
+        )
+        
+    }
+    
+}
+
+
+
 nowPA <- function(offset = 300){ # default value: 5 minutes
     
     gsub("\\..*","",as.character(now(tzone = "UTC")-offset))
@@ -158,7 +236,9 @@ for (i in 1:length(database$`sensor index`)) {
         
         
     })
-    
+    # https://community.purpleair.com/t/loop-api-calls-for-historical-data/4623#p-7306-avoiding-rate-limiting-6
+    # 500 milliseconds:	This will typically be sufficient to avoid rate-limiting in most cases. However, it can still occur, especially when sending many requests in a row.
+    Sys.sleep(.5)
 }
 
 
@@ -175,6 +255,3 @@ if (nrow(rogue_sensors)!=0) {
     fwrite(rogue_sensors,"./list.csv")
     
 }
-
-
-  
