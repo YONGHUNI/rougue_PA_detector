@@ -1,0 +1,324 @@
+
+
+# Get Sensor History
+## https://api.purpleair.com/#api-sensors-get-sensor-history
+
+get_sensor_history <- function(secret, sensor_idx, read_key = NA, privacy = NA,
+                               start_timestamp = NA, end_timestamp = NA, average = NA,
+                               fields ){
+    
+    require("data.table")
+    require("httr")
+    require("lubridate")
+    
+    
+    concat_fields <- paste(fields, collapse = ',')
+    
+    if(grepl(" ", concat_fields, fixed = T)) stop("Field param error...\n Should be an R character vector(array)")
+    
+    
+    parse_date_time(start_timestamp, orders = "%Y-%m-%d %H:%M:%S", exact = TRUE) |> as.integer() -> stime
+    parse_date_time(end_timestamp, orders = "%Y-%m-%d %H:%M:%S", exact = TRUE) |> as.integer() -> etime
+    
+    if (etime-stime <= seconds(days(29))) {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+        
+        
+        qlist <-  Filter(Negate(anyNA),list(
+            `read_key` = read_key,      # 
+            `privacy` = privacy,  # 
+            `start_timestamp` = stime,
+            `end_timestamp` = etime,
+            `average` = average,
+            `fields` = concat_fields
+        ))
+        
+        
+        # calling an API
+        apiResult <- httr::GET( 
+            url = paste0("https://api.purpleair.com/v1/sensors/",sensor_idx,"/history"),
+            add_headers(`X-API-Key` = secret),
+            query = qlist
+        )
+        
+        
+        if (apiResult$status_code == "200"){
+            cat("ResultCode OK!\n")
+            temp <- rawToChar(apiResult$content)
+            Encoding(temp) <- "UTF-8"
+            temp <- jsonlite::fromJSON(temp)
+            
+            
+            result <- temp$data |> as.data.table() |> `colnames<-`(temp$fields)
+            
+            
+            result[, c("date","time") := data.table::IDateTime(as.POSIXlt(time_stamp,tz = "UTC"))] |>
+                setorderv( c("date","time"))
+            
+            
+            return(result)
+            
+            
+        }else{
+            
+            temp <- rawToChar(apiResult$content) |> jsonlite::fromJSON()
+            cat(sep = "",
+                "Bad Request Exception in / Unexpected Error\n",
+                "Status code: ",apiResult$status_code, "\n",
+                temp$error,": ",temp$description,"\n"
+            )
+            #stop(paste0("No Returned Entities!","Status code: ",apiResult$status_code,", ",temp$error,": ",temp$description,"\n"))
+        } 
+        
+        
+    } else {
+        
+        ddiff <- as.numeric(as_datetime(end_timestamp) - as_datetime(start_timestamp))
+        
+        num_of_loop <- ceiling(ddiff/29)
+        
+        bind <- data.table()
+        
+        for (i in 1:num_of_loop) {
+            
+            if (i==num_of_loop) {
+                
+                etime <- as.integer(parse_date_time(end_timestamp, orders = "%Y-%m-%d %H:%M:%S", exact = TRUE))
+                
+            } else{
+                
+                etime <- as.numeric(stime + seconds(days(29)))
+                
+            }
+            
+            
+            qlist <-  Filter(Negate(anyNA),list(
+                `read_key` = read_key,      # 
+                `privacy` = privacy,  # 
+                `start_timestamp` = stime,
+                `end_timestamp` = etime,
+                `average` = average,
+                `fields` = concat_fields
+            ))
+            
+            
+            # calling an API
+            apiResult <- httr::GET( 
+                url = paste0("https://api.purpleair.com/v1/sensors/",sensor_idx,"/history"),
+                add_headers(`X-API-Key` = secret),
+                query = qlist
+            )
+            Sys.sleep(1)
+            
+            if (apiResult$status_code == "200"){
+                cat("ResultCode OK!\n")
+                temp <- rawToChar(apiResult$content)
+                Encoding(temp) <- "UTF-8"
+                temp <- jsonlite::fromJSON(temp)
+                
+                print(dim(temp$data))
+                
+                stime <- as.numeric(etime + 1) # adding 1 second to avoid the overlap
+                if (is.null(temp$data[1][[1]])) next 
+                
+                try(bind <- rbind(bind,as.data.table(temp$data)))
+                
+                print(dim(bind))
+                
+            }else{
+                
+                temp <- rawToChar(apiResult$content) |> jsonlite::fromJSON()
+                cat(sep = "",
+                    "Bad Request Exception in / Unexpected Error\n",
+                    "Status code: ",apiResult$status_code, "\n",
+                    temp$error,": ",temp$description,"\n"
+                )
+                #stop(paste0("No Returned Entities!","Status code: ",apiResult$status_code,", ",temp$error,": ",temp$description,"\n"))
+            } 
+            
+            
+            
+        }
+        
+        result <- bind |> `colnames<-`(temp$fields)
+        
+        
+        result[, c("date","time") := data.table::IDateTime(as.POSIXlt(time_stamp,tz = "UTC"))] |>
+            setorderv( c("date","time"))
+        
+        return(result)
+        
+    }
+    
+    
+}
+
+
+
+
+library("data.table")
+
+if (Sys.info()[[1]]=="Windows") {
+    
+    # For my Windows Environment
+    # Import the API key
+    secret <- readLines("./data/secret/secret.txt")
+    sensor_idx <- readLines("./data/secret/sensor_idx.txt")
+    read_key <- readLines("./data/secret/readkey.txt")
+    # database <- readLines("./data/secret/participant.txt") |>
+    #     base64enc::base64decode() |>
+    #     rawToChar() |>
+    #     jsonlite::fromJSON() |>
+    #     as.data.table()
+    confidential <- readxl::read_xlsx("./data/sensors/key2Yonghun_3_12_25.xlsx") |> as.data.table()
+    
+} else{
+    
+    # For github actions Ubuntu env
+    
+    secret <- Sys.getenv("SECRET")
+    confidential <- Sys.getenv("DATABASE") |>
+         base64enc::base64decode() |>
+         rawToChar() |>
+         jsonlite::fromJSON() |>
+         as.data.table()
+    
+    db_host <- Sys.getenv("DB_HOST")
+    db_name <- Sys.getenv("DB_NAME")
+    db_password <- Sys.getenv("DB_PASSWORD")
+    db_port <- Sys.getenv("DB_PORT")
+    db_user <- Sys.getenv("DB_USER")
+    
+    #deprecated
+    #ghtoken <- Sys.getenv("TOKEN_GH")
+    #sensor_idx <- Sys.getenv("SENSOR_IDX")
+    #read_key <- Sys.getenv("READ_KEY")
+    
+}
+
+
+
+
+
+
+
+# read data
+#sensors <- fread("./data/output/2025-02-06_UTC_PA.csv")[,time:=as.ITime(time)]
+
+
+library(DBI)
+library(RPostgres)
+
+
+con <- DBI::dbConnect(RPostgres::Postgres(), dbname = db_name, 
+                      host = db_host, port = db_port, user = db_user, 
+                      password = db_password)
+
+
+
+
+
+#dbListTables(con)
+
+
+sensors <- dbReadTable(con, "Purple_Air") |> as.data.table()
+var_order <- names(sensors)
+variables <- var_order[2:10]
+
+
+sensors[,key:=as_datetime(time_stamp)]
+sensors[,.(latest=max(key)),by ="sensor_index"]
+
+# # first observation
+# sensors[,.(firstobs=min(key))]
+# sensors[,.(firstobs=min(key)),by ="sensor_index"]
+
+#latest
+# last observations
+lastobs <- sensors[,.(latest=max(key)),by ="sensor_index"]
+
+
+setnames(confidential,names(confidential),c("Device_ID","read_key","sensor_index","start_date","station_ID","participant_name", "zipcode"))
+
+##join
+database <- merge(sensors,lastobs,all.x = T)
+database <- merge(database,confidential,all.x = T)
+
+
+
+confidential <- merge.data.table(database[!duplicated(database, by = "Device_ID"),c("Device_ID","latest")],confidential, all.y = T)
+
+
+# fetch only new observations
+sensors_new <-  data.table()
+
+# fetch data from the sensors with the last observation date
+
+#stime <- "2024-11-10 00:00:00" # stime will be the `lastobs`
+etime <- format(as_datetime(date(now(tzone = "utc"))), "%Y-%m-%d 00:00:00")
+
+
+
+for (i in 1:length(confidential$`sensor.index`)) {
+    
+    cat("fetching data from ",confidential$`sensor.index`[i],"...\n")
+    tryCatch({
+        
+        sensor_data <- get_sensor_history(secret = secret,
+                                          sensor_idx = confidential$`sensor.index`[i],
+                                          start_timestamp = ifelse(is.na(confidential$`latest`[i]),yes = "2024-09-01 00:00:00",no =  format(confidential$`latest`[i]+1800,"%Y-%m-%d %H:%M:%S")) ,
+                                          end_timestamp = etime,
+                                          read_key = confidential$`read.key`[i],
+                                          average = 30, # 30min
+                                          fields = variables
+        )
+        
+        sensor_data[,names(database):= as.list(as.vector(database[i], mode = "character"))]
+        sensors_new <<- rbind(sensor_data,sensors_new)
+        
+        cat("fetching data from ",database$`sensor index`[i],"was successful \n")
+        
+        
+    }, error = function(e) {
+        
+        # for debugging
+        cat(paste0("Error in ",database$`sensor index`[i],"\n"))
+        print(e)
+        
+        
+        
+    })
+    Sys.sleep(1) # for preventing API call limit from exceeding
+}
+
+sensors_new <- sensors_new[,.SD,.SDcols = !"latest"]
+#fwrite(sensors_new,paste0("./data/output/2025-01-27_UTC","_PA.csv"),bom = T)
+
+
+
+variables_old <- names(sensors)
+
+
+
+sensors_new <- sensors_new[,.SD, .SDcols = variables_old]
+
+
+#sensors_old[, names(database)[1:10] := lapply(.SD, as.character),.SDcols = names(database)[1:10]]
+
+
+sensors_total <- rbind(sensors[,.SD,.SDcols = !"key"],sensors_new[,.SD,.SDcols = !"key"])
+
+
+
+#fwrite(sensors_total,"./data/output/2025-03-16_UTC_PA.csv",bom = T)
+
+
+
+dbWriteTable(con,"Purple_Air",sensors_new[,.SD,.SDcols = !"key"],append = TRUE)
+
+
+
+
+#dbReadTable(con,"Purple_Air") -> test
+
+#dbRemoveTable(con,"Purple_Air")
+
