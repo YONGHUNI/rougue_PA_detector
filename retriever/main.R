@@ -257,17 +257,17 @@ sensors_new <-  data.table()
 # fetch data from the sensors with the last observation date
 
 #stime <- "2024-11-10 00:00:00" # stime will be the `lastobs`
-etime <- format(as_datetime(date(now())), "%Y-%m-%d 00:00:00")
+etime <- format(as_datetime(date(now(tzone = "utc"))), "%Y-%m-%d 00:00:00")
 
 
 
-for (i in 1:length(confidential$`sensor.index`)) {
+for (i in 1:length(confidential$`sensor_index`)) {
     
-    cat("fetching data from ",confidential$`sensor.index`[i],"...\n")
+    cat("fetching data from ",confidential$`sensor_index`[i],"...\n")
     tryCatch({
         
         sensor_data <- get_sensor_history(secret = secret,
-                                          sensor_idx = confidential$`sensor.index`[i],
+                                          sensor_idx = confidential$`sensor_index`[i],
                                           start_timestamp = ifelse(is.na(confidential$`latest`[i]),yes = "2024-09-01 00:00:00",no =  format(confidential$`latest`[i]+1800,"%Y-%m-%d %H:%M:%S")) ,
                                           end_timestamp = etime,
                                           read_key = confidential$`read.key`[i],
