@@ -207,13 +207,14 @@ if (Sys.info()[[1]]=="Windows") {
 
 library(DBI)
 library(RPostgres)
+library(lubridate)
 
-
+cat("trying to make a conn with DB\n")
 con <- DBI::dbConnect(RPostgres::Postgres(), dbname = db_name, 
                       host = db_host, port = db_port, user = db_user, 
                       password = db_password)
 
-
+cat("connected!\n")
 
 
 
