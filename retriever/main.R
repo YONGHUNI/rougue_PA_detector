@@ -169,7 +169,8 @@ if (Sys.info()[[1]]=="Windows") {
     #     rawToChar() |>
     #     jsonlite::fromJSON() |>
     #     as.data.table()
-    confidential <- readxl::read_xlsx("./data/sensors/key2Yonghun_3_12_25.xlsx") |> as.data.table()
+    confidential <- readxl::read_xlsx("./data/secret/key2Yonghun_1223.xlsx") |> as.data.table()
+    confidential[,`sensor index`:=as.character(`sensor index`)]
     
 } else{
     
@@ -181,6 +182,7 @@ if (Sys.info()[[1]]=="Windows") {
          rawToChar() |>
          jsonlite::fromJSON() |>
          as.data.table()
+    confidential[,`sensor index`:=as.character(`sensor index`)]
     
     db_host <- Sys.getenv("DB_HOST")
     db_name <- Sys.getenv("DB_NAME")
