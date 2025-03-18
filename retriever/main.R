@@ -162,8 +162,8 @@ if (Sys.info()[[1]]=="Windows") {
     # For my Windows Environment
     # Import the API key
     secret <- readLines("./data/secret/secret.txt")
-    sensor_idx <- readLines("./data/secret/sensor_idx.txt")
-    read_key <- readLines("./data/secret/readkey.txt")
+    #sensor_idx <- readLines("./data/secret/sensor_idx.txt")
+    #read_key <- readLines("./data/secret/readkey.txt")
     # database <- readLines("./data/secret/participant.txt") |>
     #     base64enc::base64decode() |>
     #     rawToChar() |>
@@ -175,7 +175,6 @@ if (Sys.info()[[1]]=="Windows") {
 } else{
     
     # For github actions Ubuntu env
-    
     secret <- Sys.getenv("SECRET")
     confidential <- Sys.getenv("DATABASE") |>
          base64enc::base64decode() |>
@@ -184,16 +183,14 @@ if (Sys.info()[[1]]=="Windows") {
          as.data.table()
     confidential[,`sensor index`:=as.character(`sensor index`)]
     
+    
+    # DB credentials
     db_host <- Sys.getenv("DB_HOST")
     db_name <- Sys.getenv("DB_NAME")
     db_password <- Sys.getenv("DB_PASSWORD")
     db_port <- Sys.getenv("DB_PORT")
     db_user <- Sys.getenv("DB_USER")
     
-    #deprecated
-    #ghtoken <- Sys.getenv("TOKEN_GH")
-    #sensor_idx <- Sys.getenv("SENSOR_IDX")
-    #read_key <- Sys.getenv("READ_KEY")
     
 }
 
@@ -220,42 +217,45 @@ cat("connected!\n")
 
 
 
-#dbListTables(con)
+cat("fetching data from DB DB\n")
+#sensors <- dbReadTable(con, "Purple_Air") |> as.data.table()
+cat("fetched!\n")
 
 
-sensors <- dbReadTable(con, "Purple_Air") |> as.data.table()
-var_order <- names(sensors)
-variables <- var_order[2:10]
+variables <- c("humidity","temperature","pressure","voc","pm1.0_atm","pm2.5_atm","pm2.5_cf_1","pm10.0_atm"  ,"pm10.0_cf_1",  "sensor_index")
 
 
-sensors[,key:=as_datetime(time_stamp)]
-sensors[,.(latest=max(key)),by ="sensor_index"]
+# var_order <- names(sensors)
+# variables <- var_order[2:10]
 
-# # first observation
-# sensors[,.(firstobs=min(key))]
-# sensors[,.(firstobs=min(key)),by ="sensor_index"]
 
-#latest
+#sensors[,key:=as_datetime(time_stamp)]
+#sensors[,.(latest=max(key)),by ="sensor_index"]
+
+cat("fetching data from DB DB\n")
+cat("getting last observations from each sensor\n")
 # last observations
-lastobs <- sensors[,.(latest=max(key)),by ="sensor_index"]
 
+query <- "
+  SELECT sensor_index, MAX(time_stamp) AS latest
+  FROM \"Purple_Air\"
+  GROUP BY sensor_index
+"
+
+lastobs <- dbGetQuery(con, query) |> as.data.table() |>
+    _[,latest:=as_datetime(latest)]#sensors[,.(latest=max(key)),by ="sensor_index"]
+cat("fetched!\n")
 
 setnames(confidential,names(confidential),c("Device_ID","read_key","sensor_index","start_date","station_ID","participant_name", "zipcode"))
 
-##join
-database <- merge(sensors,lastobs,all.x = T)
-database <- merge(database,confidential,all.x = T)
+confidential <- merge.data.table(lastobs,confidential, all.y = T)
 
 
 
-confidential <- merge.data.table(database[!duplicated(database, by = "Device_ID"),c("Device_ID","latest")],confidential, all.y = T)
-
-
-# fetch only new observations
+cat("doing loops for new observations\n")
 sensors_new <-  data.table()
 
 # fetch data from the sensors with the last observation date
-
 #stime <- "2024-11-10 00:00:00" # stime will be the `lastobs`
 etime <- format(as_datetime(date(now(tzone = "utc"))), "%Y-%m-%d 00:00:00")
 
@@ -268,23 +268,25 @@ for (i in 1:length(confidential$`sensor_index`)) {
         
         sensor_data <- get_sensor_history(secret = secret,
                                           sensor_idx = confidential$`sensor_index`[i],
-                                          start_timestamp = ifelse(is.na(confidential$`latest`[i]),yes = "2024-09-01 00:00:00",no =  format(confidential$`latest`[i]+1800,"%Y-%m-%d %H:%M:%S")) ,
+                                          start_timestamp = ifelse(is.na(confidential$`latest`[i]),
+                                                                   yes =  format(confidential$start_date[i],"%Y-%m-%d %H:%M:%S"),
+                                                                   no =  format(confidential$`latest`[i]+1800,"%Y-%m-%d %H:%M:%S")) ,
                                           end_timestamp = etime,
                                           read_key = confidential$`read_key`[i],
                                           average = 30, # 30min
                                           fields = variables
         )
         
-        sensor_data[,names(database):= as.list(as.vector(database[i], mode = "character"))]
+        sensor_data[,names(confidential):= as.list(as.vector(confidential[i], mode = "character"))]
         sensors_new <<- rbind(sensor_data,sensors_new)
         
-        cat("fetching data from ",database$`sensor index`[i],"was successful \n")
+        cat("fetching data from ",confidential$`sensor_index`[i],"was successful \n")
         
         
     }, error = function(e) {
         
         # for debugging
-        cat(paste0("Error in ",database$`sensor index`[i],"\n"))
+        cat(paste0("Error in ",confidential$`sensor_index`[i],"\n"))
         print(e)
         
         
@@ -292,36 +294,30 @@ for (i in 1:length(confidential$`sensor_index`)) {
     })
     Sys.sleep(1) # for preventing API call limit from exceeding
 }
-
-sensors_new <- sensors_new[,.SD,.SDcols = !"latest"]
-#fwrite(sensors_new,paste0("./data/output/2025-01-27_UTC","_PA.csv"),bom = T)
+cat("fetched new observations\n")
 
 
+cat("testing if the data is valid\n")
+variables_old_head <- dbGetQuery(con, "SELECT * FROM \"Purple_Air\" LIMIT 5;")
 
-variables_old <- names(sensors)
+variables_old <- names(variables_old_head)
 
-
-
-sensors_new <- sensors_new[,.SD, .SDcols = variables_old]
-
-
-#sensors_old[, names(database)[1:10] := lapply(.SD, as.character),.SDcols = names(database)[1:10]]
-
-
-sensors_total <- rbind(sensors[,.SD,.SDcols = !"key"],sensors_new[,.SD,.SDcols = !"key"])
-
-
-
-#fwrite(sensors_total,"./data/output/2025-03-16_UTC_PA.csv",bom = T)
-
-
-
-dbWriteTable(con,"Purple_Air",sensors_new[,.SD,.SDcols = !"key"],append = TRUE)
+sensors_new <- sensors_new[,.SD,.SDcols = !"latest"][,.SD, .SDcols = variables_old]
 
 
 
 
-#dbReadTable(con,"Purple_Air") -> test
 
-#dbRemoveTable(con,"Purple_Air")
+rbind(variables_old_head,sensors_new)
+cat("test done!\n")
+
+
+cat("Appending the data into DB\n")
+dbWriteTable(con,"Purple_Air",sensors_new, append = TRUE)
+cat("Done!\n")
+
+cat("DB connection cleanup\n")
+DBI::dbDisconnect(con)
+
+
 
