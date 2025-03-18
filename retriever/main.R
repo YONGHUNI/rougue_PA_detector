@@ -217,12 +217,12 @@ cat("connected!\n")
 
 
 
-cat("fetching data from DB DB\n")
+#cat("fetching data from DB DB\n")
 #sensors <- dbReadTable(con, "Purple_Air") |> as.data.table()
-cat("fetched!\n")
+#cat("fetched!\n")
 
 
-variables <- c("humidity","temperature","pressure","voc","pm1.0_atm","pm2.5_atm","pm2.5_cf_1","pm10.0_atm"  ,"pm10.0_cf_1",  "sensor_index")
+variables <- c("humidity","temperature","pressure","voc","pm1.0_atm","pm2.5_atm","pm2.5_cf_1","pm10.0_atm"  ,"pm10.0_cf_1")
 
 
 # var_order <- names(sensors)
