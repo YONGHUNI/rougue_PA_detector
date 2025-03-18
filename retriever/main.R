@@ -257,7 +257,7 @@ sensors_new <-  data.table()
 
 # fetch data from the sensors with the last observation date
 #stime <- "2024-11-10 00:00:00" # stime will be the `lastobs`
-etime <- format(as_datetime(date(now(tzone = "utc"))), "%Y-%m-%d 00:00:00")
+etime <- format(as_datetime(date(now(tzone = "UTC"))), "%Y-%m-%d 00:00:00")
 
 
 
