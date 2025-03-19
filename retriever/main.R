@@ -297,6 +297,7 @@ for (i in 1:length(confidential$`sensor_index`)) {
     Sys.sleep(1) # for preventing API call limit from exceeding
 }
 cat("fetched new observations\n")
+cat(paste("shape of fetched data: (",paste(dim(sensors_new),collapse = ", ")),")\n")
 
 
 cat("testing if the data is valid\n")
