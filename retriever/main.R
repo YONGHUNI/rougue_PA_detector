@@ -269,8 +269,10 @@ for (i in 1:length(confidential$`sensor_index`)) {
         sensor_data <- get_sensor_history(secret = secret,
                                           sensor_idx = confidential$`sensor_index`[i],
                                           start_timestamp = ifelse(is.na(confidential$`latest`[i]),
-                                                                   yes =  format(confidential$start_date[i],"%Y-%m-%d %H:%M:%S"),
-                                                                   no =  format(confidential$`latest`[i]+1800,"%Y-%m-%d %H:%M:%S")) ,
+                                                                   yes =  format(confidential$start_date[i],
+                                                                                 format = "%Y-%m-%d %H:%M:%S"),
+                                                                   no =  format(confidential$`latest`[i]+1800,
+                                                                                format = "%Y-%m-%d %H:%M:%S")) ,
                                           end_timestamp = etime,
                                           read_key = confidential$`read_key`[i],
                                           average = 30, # 30min
@@ -308,7 +310,8 @@ sensors_new <- sensors_new[,.SD,.SDcols = !"latest"][,.SD, .SDcols = variables_o
 
 
 
-rbind(variables_old_head,sensors_new)
+rbind(variables_old_head,sensors_new)|>  summary()
+rbind(variables_old_head,sensors_new)|>  dim()
 cat("test done!\n")
 
 
