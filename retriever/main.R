@@ -267,7 +267,7 @@ for (i in 1:length(confidential$`sensor_index`)) {
     tryCatch({
         
         cat("is the start date",str(ifelse(is.na(confidential$`latest`[i]),
-                   yes =  format(confidential$start_date[i],
+                   yes =  format(as_datetime(confidential$start_date[i]),
                                  format = "%Y-%m-%d %H:%M:%S"),
                    no =  format(confidential$`latest`[i]+1800,
                                 format = "%Y-%m-%d %H:%M:%S"))),"\n")
@@ -276,7 +276,7 @@ for (i in 1:length(confidential$`sensor_index`)) {
         sensor_data <- get_sensor_history(secret = secret,
                                           sensor_idx = confidential$`sensor_index`[i],
                                           start_timestamp = ifelse(is.na(confidential$`latest`[i]),
-                                                                   yes =  format(confidential$start_date[i],
+                                                                   yes =  format(as_datetime(confidential$start_date[i]),
                                                                                  format = "%Y-%m-%d 00:00:00"),
                                                                    no =  format(confidential$`latest`[i]+1800,
                                                                                 format = "%Y-%m-%d %H:%M:%S")) ,
