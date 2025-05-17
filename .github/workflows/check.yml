@@ -6,6 +6,9 @@ on:
   workflow_dispatch:
   push:
     branches: main
+    paths:
+      - '1_checker/**'
+      - '.github/workflows/check.yml'
 
 name: detecting rogue sensor
 
@@ -69,7 +72,7 @@ jobs:
           webhook_token: ${{ secrets.WEBHOOK_TOKEN }}
           color: "#48f442"
           username: "GitHub Bot"
-          file: "./1_checker/list.csv"
+          file: "./list.csv"
           message: ${{ env.message_content }}
 
           

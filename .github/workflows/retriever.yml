@@ -4,7 +4,10 @@ on:
   workflow_dispatch:
   push:
     branches: main
-
+    paths:
+      - '2_retriever/**'
+      - '.github/workflows/retriever.yml'
+      
 name: auto fetcher
 
 jobs:
