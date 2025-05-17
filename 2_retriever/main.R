@@ -319,29 +319,40 @@ for (i in 1:length(confidential$`sensor_index`)) {
     })
     Sys.sleep(1) # for preventing API call limit from exceeding
 }
+
 cat("fetched new observations\n")
 cat(paste("shape of fetched data: (",paste(dim(sensors_new),collapse = ", ")),")\n")
 
 
-cat("testing if the data is valid\n")
-variables_old_head <- dbGetQuery(con, "SELECT * FROM \"Purple_Air\" LIMIT 5;")
+if (dim(sensors_new)[1]>1) {
+    cat("testing if the data is valid\n")
+    variables_old_head <- dbGetQuery(con, "SELECT * FROM \"Purple_Air\" LIMIT 5;")
+    
+    variables_old <- names(variables_old_head)
+    
+    
+    sensors_new <- sensors_new[,.SD,.SDcols = !"latest"][,.SD, .SDcols = variables_old]
+    
+    
+    
+    
+    
+    rbind(variables_old_head,sensors_new)|>  summary()
+    rbind(variables_old_head,sensors_new)|>  dim()
+    cat("test done!\n")
+    
+    
+    cat("Appending the data into DB\n")
+    dbWriteTable(con,"Purple_Air",sensors_new, append = TRUE)
+    cat("Done!\n")
+} else {
+  
+  cat("no data to be append!\n")
+  
+}
 
-variables_old <- names(variables_old_head)
-
-sensors_new <- sensors_new[,.SD,.SDcols = !"latest"][,.SD, .SDcols = variables_old]
 
 
-
-
-
-rbind(variables_old_head,sensors_new)|>  summary()
-rbind(variables_old_head,sensors_new)|>  dim()
-cat("test done!\n")
-
-
-cat("Appending the data into DB\n")
-dbWriteTable(con,"Purple_Air",sensors_new, append = TRUE)
-cat("Done!\n")
 
 cat("DB connection cleanup\n")
 DBI::dbDisconnect(con)
