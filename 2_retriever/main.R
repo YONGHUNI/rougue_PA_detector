@@ -161,7 +161,7 @@ if (Sys.info()[[1]]=="Windows") {
     
     # For my Windows Environment
     # Import the API key
-    secret <- readLines("./data/secret/secret.txt")
+    secret <- readLines("./../data/secret/secret.txt")
     #sensor_idx <- readLines("./data/secret/sensor_idx.txt")
     #read_key <- readLines("./data/secret/readkey.txt")
     # database <- readLines("./data/secret/participant.txt") |>
@@ -169,7 +169,7 @@ if (Sys.info()[[1]]=="Windows") {
     #     rawToChar() |>
     #     jsonlite::fromJSON() |>
     #     as.data.table()
-    confidential <- readxl::read_xlsx("./data/secret/key2Yonghun_1223.xlsx") |> as.data.table()
+    confidential <- readxl::read_xlsx("./../data/secret/key2Yonghun_3_24_25.xlsx") |> as.data.table()
     confidential[,`sensor index`:=as.character(`sensor index`)]
     
 } else{
@@ -257,13 +257,27 @@ sensors_new <-  data.table()
 
 # fetch data from the sensors with the last observation date
 #stime <- "2024-11-10 00:00:00" # stime will be the `lastobs`
-etime <- format(as_datetime(date(now(tzone = "UTC"))), "%Y-%m-%d 00:00:00")
+etime <- format(as_datetime(now(tzone = "UTC")), "%Y-%m-%d %H:%M:%S")
+
 
 
 
 for (i in 1:length(confidential$`sensor_index`)) {
     
     cat("fetching data from ",confidential$`sensor_index`[i],"...\n")
+  
+    stime = ifelse(is.na(confidential$`latest`[i]),
+                   yes =  format(as_datetime(confidential$start_date[i]),
+                                 format = "%Y-%m-%d 00:00:00"),
+                   no =  format(confidential$`latest`[i]+1800,
+                                format = "%Y-%m-%d %H:%M:%S"))
+    
+    if(difftime(as_datetime(etime),as_datetime(stime),units = "hours") < 1.) {
+      
+      cat("\n time diff less then 1 hour... skipping data fetch for this sensor\n\n\n\n")
+      next
+    }
+    
     tryCatch({
         
         cat("is the start date",str(ifelse(is.na(confidential$`latest`[i]),
@@ -271,15 +285,17 @@ for (i in 1:length(confidential$`sensor_index`)) {
                                  format = "%Y-%m-%d %H:%M:%S"),
                    no =  format(confidential$`latest`[i]+1800,
                                 format = "%Y-%m-%d %H:%M:%S"))),"\n")
-     
+        
+
+
+        
+        
+
+        
         
         sensor_data <- get_sensor_history(secret = secret,
                                           sensor_idx = confidential$`sensor_index`[i],
-                                          start_timestamp = ifelse(is.na(confidential$`latest`[i]),
-                                                                   yes =  format(as_datetime(confidential$start_date[i]),
-                                                                                 format = "%Y-%m-%d 00:00:00"),
-                                                                   no =  format(confidential$`latest`[i]+1800,
-                                                                                format = "%Y-%m-%d %H:%M:%S")) ,
+                                          start_timestamp = stime,
                                           end_timestamp = etime,
                                           read_key = confidential$`read_key`[i],
                                           average = 30, # 30min
@@ -289,7 +305,7 @@ for (i in 1:length(confidential$`sensor_index`)) {
         sensor_data[,names(confidential):= as.list(as.vector(confidential[i], mode = "character"))]
         sensors_new <<- rbind(sensor_data,sensors_new)
         
-        cat("fetching data from ",confidential$`sensor_index`[i],"was successful \n")
+        cat("fetching data from ",confidential$`sensor_index`[i],"was successful \n\n\n\n ")
         
         
     }, error = function(e) {
@@ -297,7 +313,7 @@ for (i in 1:length(confidential$`sensor_index`)) {
         # for debugging
         cat(paste0("Error in ",confidential$`sensor_index`[i],"\n"))
         print(e)
-        
+        cat("\n\n\n\n")
         
         
     })

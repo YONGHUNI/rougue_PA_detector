@@ -46,7 +46,7 @@ jobs:
           #SENSOR_IDX: ${{ secrets.SENSOR_IDX }}
           #READ_KEY: ${{ secrets.READ_KEY }}
           #TOKEN_GH: ${{ secrets.TOKEN_GH }} 
-        run: Rscript --verbose main.R
+        run: Rscript --verbose ./1_checker/main.R
       
       - name: Check for msg file
         id: check_file
@@ -69,7 +69,7 @@ jobs:
           webhook_token: ${{ secrets.WEBHOOK_TOKEN }}
           color: "#48f442"
           username: "GitHub Bot"
-          file: "./list.csv"
+          file: "./1_checker/list.csv"
           message: ${{ env.message_content }}
 
           

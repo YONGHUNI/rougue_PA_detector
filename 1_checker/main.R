@@ -169,10 +169,10 @@ if (Sys.info()[[1]]=="Windows") {
     
     # For my Windows Environment
     # Import the API key
-    secret <- readLines("./data/secret/secret.txt")
-    sensor_idx <- readLines("./data/secret/sensor_idx.txt")
-    read_key <- readLines("./data/secret/readkey.txt")
-    database <- readLines("./data/secret/participant.txt") |>
+    secret <- readLines("./../data/secret/secret.txt")
+    sensor_idx <- readLines("./../data/secret/sensor_idx.txt")
+    read_key <- readLines("./../data/secret/readkey.txt")
+    database <- readLines("./../data/secret/participant.txt") |>
         base64enc::base64decode() |>
         rawToChar() |>
         jsonlite::fromJSON() |>
@@ -203,6 +203,7 @@ rogue_sensors <-  data.table()
 
 for (i in 1:length(database$`sensor index`)) {
     
+    cat(paste0("Checking sensor ",i,"...\n","Sensor No. ",database$`sensor index`[i]," / ", database$`station ID`[i],"\n"))
     
     tryCatch({
         
@@ -216,14 +217,14 @@ for (i in 1:length(database$`sensor index`)) {
         
         cat(lubridate::now(tzone = "UTC")|>as.character(),"\n")
         print(sensor_data[,c("date","time")])
-        
+        cat("\n\n\n")
         
         
     }, error = function(e) {
         
         # for debugging
-        cat(paste0(i,"\n"))
-        
+        cat(paste0("Firing: Sensor No.",database$`sensor index`[i], " malfunctioning!","\n"))
+        cat("\n\n\n")
         ######## deprecated
         # gh::gh(
         #     .token = ghtoken,
