@@ -1,13 +1,13 @@
 on:
   schedule:
-    - cron: '0 * * * *' # run every hour
+    - cron: '30 * * * *' # Run at 30 minutes past every hour
   workflow_dispatch:
   push:
     branches: main
     paths:
       - '2_retriever/**'
       - '.github/workflows/retriever.yml'
-      
+
 name: auto fetcher
 
 jobs:
