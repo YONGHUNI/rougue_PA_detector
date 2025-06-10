@@ -246,11 +246,18 @@ for (i in 1:length(database$`sensor index`)) {
 if (nrow(rogue_sensors)!=0) {
     
     cat("Issuing on Discord\n")
-    msg <- paste0("[Bot] ", 
+    #msg <- paste0("[Bot] ", 
+    #              nowPA(), 
+    #              " UTC : Warning! Offline sensors detected! Sensor Index: [",
+    #              paste(rogue_sensors$`sensor index`,collapse = "] ["),
+    #              "] Please refer to the CSV file attached.")
+
+      msg <- paste0("[Bot] ", 
                   nowPA(), 
-                  " UTC : Warning! Offline sensors detected! Sensor Index: [",
-                  paste(rogue_sensors$`sensor index`,collapse = "] ["),
-                  "] Please refer to the CSV file attached.")
+                  " UTC : Warning! ", length(rogue_sensors$`sensor index`), 
+                    "offline sensors detected! Please refer to the CSV file attached.")
+
+  
     
     writeLines(msg, "./msg")
     fwrite(rogue_sensors,"./list.csv")
