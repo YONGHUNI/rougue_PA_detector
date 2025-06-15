@@ -255,7 +255,7 @@ if (nrow(rogue_sensors)!=0) {
       msg <- paste0("[Bot] ", 
                   nowPA(), 
                   " UTC : Warning! ", length(rogue_sensors$`sensor index`), 
-                    "offline sensors detected! Please refer to the CSV file attached.")
+                    " offline sensor(s) detected! Please refer to the CSV file attached.")
 
   
     
