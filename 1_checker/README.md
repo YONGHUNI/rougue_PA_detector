@@ -1,60 +1,40 @@
-# Rogue Purple Air Sensor Detector Using GitHub Actions
+# 1_checker: Automated Anomaly Detection & Alerts via GitHub Actions
 
-## How it works?  
+This module continuously monitors Purple Air sensor data for anomalies (e.g., offline sensors) and dispatches alerts, all triggered and managed by GitHub Actions scheduling.
 
-### What is `GitHub Actions`?  
+## How It Works with GitHub Actions
 
-GitHub Actions is a continuous integration and continuous delivery (CI/CD) platform that allows you to automate your build, test, and deployment pipeline. You can create workflows that build and test every pull request to your repository, or deploy merged pull requests to production.  
+- **Scheduled Checks**  
+  Anomaly detection runs are scheduled using GitHub Actions, via `.github/workflows/check.yml`. Runs occur at regular intervals.
 
-GitHub Actions makes it easy to automate all your software workflows. Build, test, and deploy your code right from GitHub. Make code reviews, branch management, and issue triaging work the way you want.
+- **Secure Secrets Management**  
+  All sensitive information (API keys, sensor indices, participant info) is injected as environment variables from GitHub repository secrets and accessed via `Sys.getenv()` in the script.
 
-I came up with the idea that the GitHub Actions will work if we use workflow automation including issue triaging. Also, it is completely free if we push it into the public repository!
+- **Anomaly Detection & Alerting**  
+  The script processes the latest sensor data, checks for missing or abnormal values, and sends alerts (e.g., to Discord) if issues are found.
 
-### Programming `GitHub Actions`
+- **Compliance with Rate Limits**  
+  `Sys.sleep()` is used to pace API calls, ensuring the service is not overloaded and to comply with external API restrictions.
 
-We can program it to meet our needs by making a YAML file.
+- **Logging & Monitoring**  
+  All workflow executions and alert logs are available in the GitHub Actions dashboard for auditing and troubleshooting.
 
-See [GitHub Actions config yaml](https://github.com/YONGHUNI/rougue_PA_detector/blob/main/.github/workflows/check.yml) for a better understanding.
+## Workflow Steps (via `retriever.yml` or similar)
 
-**1. Cron Job, *i.e.*, Scheduled job** # every 30 minutes
-> on:  
-> &nbsp; schedule:  
-> &nbsp; &nbsp;  \- cron: '*/30 * * * *' 
+1. **Checkout**: Retrieves the code.
+2. **Environment Setup**: Installs R and dependencies.
+3. **Secrets Injection**: Loads environment variables from repository secrets.
+4. **Execution**: Runs `Rscript --verbose ./1_checker/main.R` automatically on schedule.
 
-**2. Step 1: Check out the repository**
-> This action checks out your repository under $GITHUB_WORKSPACE, so your workflow can access it.
+## Usage
 
+- **Fully automated**: No manual intervention is required; anomaly checks and alerting are handled automatically by the workflow scheduler.
+- **To modify schedule or settings**: Edit the relevant workflow YAML (e.g., `check.yml`) in `.github/workflows/`.
 
-**3. Step 2: Install OS(Ubuntu) dependencies**(programs for R packages)  
-Using the premade action(awalsh128/cache-apt-pkgs-action@latest) that caches installed packages from the last run, we can save a lot of time  
-> \- name: Install Ubuntu dependencies  
-  &nbsp;uses: awalsh128/cache-apt-pkgs-action@latest  
-  &nbsp; &nbsp;with:   
-  &nbsp;  &nbsp;&nbsp;packages: >-  
-  &nbsp;     &nbsp; &nbsp;&nbsp;libcurl4-openssl-dev  
-  &nbsp;  &nbsp;&nbsp;version: 1  
+## Local Testing
 
+- Local runs are supported for development/debugging. Ensure all required secrets are set as environment variables or available as local files.
 
-**4. Step 3: Install R**  
-> \- name: Install R  
-  &nbsp;&nbsp;uses: r-lib/actions/setup-r@v2  
+---
 
-**5. Step 4: Install R dependencies**(R packages)  
-Using the premade action(r-lib/actions/setup-renv@v2) that caches installed packages from the last run, we can save a lot of time  
-I used the `renv` package to manifest and clone the environment  
-
-> \- name: Install R dependency  
-  &nbsp;&nbsp;uses: r-lib/actions/setup-renv@v2  
-  &nbsp;&nbsp;with:  
-  &nbsp;&nbsp;&nbsp;profile: '"packages"'  
-  &nbsp;&nbsp;&nbsp;cache-version: 2  
-
-
-
-**6. Step 5: run the main program**  
->name: run main.R  
-> $$\vdots$$  
->run: Rscript --verbose main.R #run main  
-
-**7. Step 6~7: steps for sending discord messages**  
-
+This module is designed for hands-off, automated anomaly detection and alerting, powered by scheduled GitHub Actions workflows.
