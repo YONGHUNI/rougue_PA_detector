@@ -1,60 +1,37 @@
-# Rogue Purple Air Sensor Detector Using GitHub Actions
+# 2_retriever: Automated Data Collection via GitHub Actions
 
-## How it works?  
+This module is designed to periodically collect Purple Air sensor data, operating as an automated scheduled task using GitHub Actions — not as a traditional CI/CD pipeline, but for the automation.
 
-### What is `GitHub Actions`?  
+## How It Works with GitHub Actions
 
-GitHub Actions is a continuous integration and continuous delivery (CI/CD) platform that allows you to automate your build, test, and deployment pipeline. You can create workflows that build and test every pull request to your repository, or deploy merged pull requests to production.  
+- **Scheduled Automation**  
+  The workflow is defined in `.github/workflows/retriever.yml`. It is triggered automatically at specified intervals (as-is: every 1 hour) using a cron schedule in GitHub Actions.
 
-GitHub Actions makes it easy to automate all your software workflows. Build, test, and deploy your code right from GitHub. Make code reviews, branch management, and issue triaging work the way you want.
+- **Secure Configuration**  
+  Sensitive information (API keys, database credentials, etc.) is securely injected as environment variables via GitHub Actions secrets. The script accesses them using `Sys.getenv()`.
 
-I came up with the idea that the GitHub Actions will work if we use workflow automation including issue triaging. Also, it is completely free if we push it into the public repository!
+- **Data Retrieval and Processing**  
+  The script sends requests to the Purple Air API, collects sensor history, and processes the result into a structured `data.table`. It includes built-in rate limiting (`Sys.sleep()`) to comply with API restrictions.
 
-### Programming `GitHub Actions`
+- **Monitoring and Logging**  
+  Each run’s output and logs are available in the GitHub Actions dashboard, providing clear traceability and operational visibility.
 
-We can program it to meet our needs by making a YAML file.
+## Workflow Steps (via `retriever.yml`)
 
-See [GitHub Actions config yaml](https://github.com/YONGHUNI/rougue_PA_detector/blob/main/.github/workflows/check.yml) for a better understanding.
+1. **Checkout**: Retrieves the repository code.
+2. **Environment Setup**: Installs R and required packages.
+3. **Secrets Injection**: Loads environment variables from repository secrets.
+4. **Execution**: Runs `Rscript --verbose ./2_retriever/main.R` automatically on schedule.
 
-**1. Cron Job, *i.e.*, Scheduled job** # every 30 minutes
-> on:  
-> &nbsp; schedule:  
-> &nbsp; &nbsp;  \- cron: '*/30 * * * *' 
+## Usage
 
-**2. Step 1: Check out the repository**
-> This action checks out your repository under $GITHUB_WORKSPACE, so your workflow can access it.
+- **No manual trigger needed**: All operations are automated through the GitHub Actions schedule.
+- **To change schedule or environment**: Edit `.github/workflows/retriever.yml` in your repository.
 
+## Local Testing
 
-**3. Step 2: Install OS(Ubuntu) dependencies**(programs for R packages)  
-Using the premade action(awalsh128/cache-apt-pkgs-action@latest) that caches installed packages from the last run, we can save a lot of time  
-> \- name: Install Ubuntu dependencies  
-  &nbsp;uses: awalsh128/cache-apt-pkgs-action@latest  
-  &nbsp; &nbsp;with:   
-  &nbsp;  &nbsp;&nbsp;packages: >-  
-  &nbsp;     &nbsp; &nbsp;&nbsp;libcurl4-openssl-dev  
-  &nbsp;  &nbsp;&nbsp;version: 1  
+- While possible, local execution is secondary to automated operation. For local runs, ensure all required secrets are available as environment variables or local files.
 
+---
 
-**4. Step 3: Install R**  
-> \- name: Install R  
-  &nbsp;&nbsp;uses: r-lib/actions/setup-r@v2  
-
-**5. Step 4: Install R dependencies**(R packages)  
-Using the premade action(r-lib/actions/setup-renv@v2) that caches installed packages from the last run, we can save a lot of time  
-I used the `renv` package to manifest and clone the environment  
-
-> \- name: Install R dependency  
-  &nbsp;&nbsp;uses: r-lib/actions/setup-renv@v2  
-  &nbsp;&nbsp;with:  
-  &nbsp;&nbsp;&nbsp;profile: '"packages"'  
-  &nbsp;&nbsp;&nbsp;cache-version: 2  
-
-
-
-**6. Step 5: run the main program**  
->name: run main.R  
-> $$\vdots$$  
->run: Rscript --verbose main.R #run main  
-
-**7. Step 6~7: steps for sending discord messages**  
-
+This module is intended for automated, scheduled data collection and is managed entirely through GitHub Actions for reliability and security.
