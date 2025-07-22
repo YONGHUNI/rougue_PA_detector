@@ -1,4 +1,4 @@
-# Rogue Purple Air Sensor Detector & Data Fetcher Using GitHub Actions
+# Rogue Purple Air Sensor Detector & Data Fetcher Using GitHub Actions [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/YONGHUNI/rougue_PA_detector)
 
 
 This repository automates the collection and monitoring of Purple Air sensor data using GitHub Actions. It is designed for fully automated operation.
