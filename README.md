@@ -1,60 +1,45 @@
-# Rogue Purple Air Sensor Detector Using GitHub Actions
-
-## How it works?  
-
-### What is `GitHub Actions`?  
-
-GitHub Actions is a continuous integration and continuous delivery (CI/CD) platform that allows you to automate your build, test, and deployment pipeline. You can create workflows that build and test every pull request to your repository, or deploy merged pull requests to production.  
-
-GitHub Actions makes it easy to automate all your software workflows. Build, test, and deploy your code right from GitHub. Make code reviews, branch management, and issue triaging work the way you want.
-
-I came up with the idea that the GitHub Actions will work if we use workflow automation including issue triaging. Also, it is completely free if we push it into the public repository!
-
-### Programming `GitHub Actions`
-
-We can program it to meet our needs by making a YAML file.
-
-See [GitHub Actions config yaml](https://github.com/YONGHUNI/rougue_PA_detector/blob/main/.github/workflows/check.yml) for a better understanding.
-
-**1. Cron Job, *i.e.*, Scheduled job** # every 30 minutes
-> on:  
-> &nbsp; schedule:  
-> &nbsp; &nbsp;  \- cron: '*/30 * * * *' 
-
-**2. Step 1: Check out the repository**
-> This action checks out your repository under $GITHUB_WORKSPACE, so your workflow can access it.
+# Rogue Purple Air Sensor Detector & Data Fetcher Using GitHub Actions [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/YONGHUNI/rougue_PA_detector)
 
 
-**3. Step 2: Install OS(Ubuntu) dependencies**(programs for R packages)  
-Using the premade action(awalsh128/cache-apt-pkgs-action@latest) that caches installed packages from the last run, we can save a lot of time  
-> \- name: Install Ubuntu dependencies  
-  &nbsp;uses: awalsh128/cache-apt-pkgs-action@latest  
-  &nbsp; &nbsp;with:   
-  &nbsp;  &nbsp;&nbsp;packages: >-  
-  &nbsp;     &nbsp; &nbsp;&nbsp;libcurl4-openssl-dev  
-  &nbsp;  &nbsp;&nbsp;version: 1  
+This repository automates the collection and monitoring of Purple Air sensor data using GitHub Actions. It is designed for fully automated operation.
 
+## Overview
 
-**4. Step 3: Install R**  
-> \- name: Install R  
-  &nbsp;&nbsp;uses: r-lib/actions/setup-r@v2  
+- **Automated Data Collection**  
+  The `2_retriever` module periodically gathers air quality data from Purple Air sensors via API calls. Its execution is orchestrated by the workflow defined in [`.github/workflows/retriever.yml`](.github/workflows/retriever.yml).
 
-**5. Step 4: Install R dependencies**(R packages)  
-Using the premade action(r-lib/actions/setup-renv@v2) that caches installed packages from the last run, we can save a lot of time  
-I used the `renv` package to manifest and clone the environment  
+- **Continuous Anomaly Detection & Alerting**  
+  The `1_checker` module processes the collected sensor data to detect anomalies (for example, offline sensors) and dispatches alerts (e.g., via Discord). This process is managed by the workflow defined in [`.github/workflows/check.yml`](.github/workflows/check.yml).
 
-> \- name: Install R dependency  
-  &nbsp;&nbsp;uses: r-lib/actions/setup-renv@v2  
-  &nbsp;&nbsp;with:  
-  &nbsp;&nbsp;&nbsp;profile: '"packages"'  
-  &nbsp;&nbsp;&nbsp;cache-version: 2  
+- **Security & Configuration**  
+  All sensitive information (API keys, database credentials, etc.) is managed through GitHub Actions secrets and provided as environment variables during workflow execution.  
+  There is no need to store secrets in the repository or input them manually at runtime.
 
+## How It Works
 
+1. **Scheduling**  
+   - The data collection workflow ([`retriever.yml`](.github/workflows/retriever.yml)) is triggered automatically every hour at 30 minutes past, can be run manually via GitHub Actions, and also runs on any push to the main branch that modifies files in `2_retriever/**` or the workflow file itself.
+   - The anomaly detection workflow ([`check.yml`](.github/workflows/check.yml)) has its own schedule: it runs on selected hours during weekdays and weekends, can also be manually triggered, and additionally runs when files in `1_checker/**` or the workflow file are pushed to the main branch.
 
-**6. Step 5: run the main program**  
->name: run main.R  
-> $$\vdots$$  
->run: Rscript --verbose main.R #run main  
+2. **Execution**  
+   - In the data collection workflow, the script `2_retriever/main.R` fetches and processes sensor data.
+   - In the anomaly detection workflow, `1_checker/main.R` analyzes the sensor data; if anomalies are detected, it checks for a message file and (if present) sends an alert using Discord.
 
-**7. Step 6~7: steps for sending discord messages**  
+3. **Monitoring**  
+   Detailed logs for each workflow run are available on the GitHub Actions dashboard, providing an easy way to monitor and troubleshoot the operations.
 
+## Directory Structure
+
+- `2_retriever/` — Contains the scripts responsible for automated data collection.
+- `1_checker/` — Contains the scripts for anomaly detection and alerting.
+- `.github/workflows/retriever.yml` — The workflow file for data retrieval.
+- `.github/workflows/check.yml` — The workflow file for anomaly detection and alert dispatching.
+
+## Local Development
+
+While the primary mode of operation is automated via GitHub Actions, local testing is supported.  
+For local runs, ensure all required environment variables or secret files are properly configured.
+
+---
+
+For detailed documentation on each module, please refer to their respective `README.md` files.
