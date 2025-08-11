@@ -181,7 +181,8 @@ if (Sys.info()[[1]]=="Windows") {
          rawToChar() |>
          jsonlite::fromJSON() |>
          as.data.table()
-    confidential[,`sensor index`:=as.character(`sensor index`)]
+    confidential[,`sensor index`:=as.character(`sensor index`)][
+    ,`start date`:=mdy(`start date`)]
     
     
     # DB credentials
