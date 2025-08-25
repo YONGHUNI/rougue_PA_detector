@@ -156,6 +156,10 @@ get_sensor_history <- function(secret, sensor_idx, read_key = NA, privacy = NA,
 
 
 library("data.table")
+library(DBI)
+library(RPostgres)
+library(lubridate)
+
 
 if (Sys.info()[[1]]=="Windows") {
     
@@ -181,7 +185,8 @@ if (Sys.info()[[1]]=="Windows") {
          rawToChar() |>
          jsonlite::fromJSON() |>
          as.data.table()
-    confidential[,`sensor index`:=as.character(`sensor index`)]
+    confidential[,`sensor index`:=as.character(`sensor index`)][
+    ,`start date`:=mdy(`start date`)]
     
     
     # DB credentials
@@ -204,9 +209,7 @@ if (Sys.info()[[1]]=="Windows") {
 #sensors <- fread("./data/output/2025-02-06_UTC_PA.csv")[,time:=as.ITime(time)]
 
 
-library(DBI)
-library(RPostgres)
-library(lubridate)
+
 
 cat("trying to make a conn with DB\n")
 con <- DBI::dbConnect(RPostgres::Postgres(), dbname = db_name, 
