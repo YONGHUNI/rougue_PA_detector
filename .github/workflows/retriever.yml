@@ -54,7 +54,7 @@ jobs:
       - name: run experimental.R
         env:
           SECRET: ${{ secrets.SECRET }}
-          DATABASE: ${{ secrets.DATABASE_EXP }}
+          DATABASE_EXP: ${{ secrets.DATABASE_EXP }}
           DB_HOST: ${{ secrets.DB_HOST }}
           DB_NAME: ${{ secrets.DB_NAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
