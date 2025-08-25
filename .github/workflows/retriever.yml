@@ -51,5 +51,14 @@ jobs:
           DB_USER: ${{ secrets.DB_USER }}  
         run: Rscript --verbose ./2_retriever/main.R
       
-          
+      - name: run experimental.R
+        env:
+          SECRET: ${{ secrets.SECRET }}
+          DATABASE: ${{ secrets.DATABASE_EXP }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_PORT: ${{ secrets.DB_PORT }} 
+          DB_USER: ${{ secrets.DB_USER }}  
+        run: Rscript --verbose ./2_retriever/experimental.R          
           
