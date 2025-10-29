@@ -2,7 +2,7 @@
 
 
 This repository automates the collection and monitoring of Purple Air sensor data using GitHub Actions. It is designed for fully automated operation.
-
+ 
 ## Overview
 
 - **Automated Data Collection**  
