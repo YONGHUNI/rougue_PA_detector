@@ -61,4 +61,5 @@ jobs:
           DB_PORT: ${{ secrets.DB_PORT }} 
           DB_USER: ${{ secrets.DB_USER }}  
         run: Rscript --verbose ./2_retriever/experimental.R          
-          
+
+
