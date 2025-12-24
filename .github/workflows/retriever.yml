@@ -9,7 +9,7 @@ on:
       - '.github/workflows/retriever.yml'
 
 name: auto fetcher
-
+ 
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
