@@ -2,7 +2,6 @@ on:
   schedule:
     - cron: '0 1,3,11,13,15,17,19,21,23 * * 1-5' # every 2 hours on weekdays(06:00-22:00 EDT)
     - cron: '0 19 * * 0,6' #  on weekends(EDT, only 14:00)
-    #- cron: '*/30 * * * *' # every 30 minutes
   workflow_dispatch:
   push:
     branches: main
@@ -76,5 +75,4 @@ jobs:
           file: "./list.csv"
           message: ${{ env.message_content }}
 
-          
-          
+                  
