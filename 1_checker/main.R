@@ -230,7 +230,7 @@ if (Sys.info()[[1]]=="Windows") {
             rawToChar() -> decoded_json
         
         
-        drive_auth(path = "./data/secret/ub-clean-air-efa0e0b9cec3.json") 
+        drive_auth(path = decoded_json) 
         
         temp_file <- tempfile(fileext = ".xlsx")
         
