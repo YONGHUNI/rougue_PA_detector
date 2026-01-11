@@ -165,7 +165,7 @@ if (Sys.info()[[1]]=="Windows") {
     
     # For my Windows Environment
     # Import the API key
-    secret <- readLines("./../data/secret/secret.txt")
+    secret <- readLines("./data/secret/secret.txt")
     #sensor_idx <- readLines("./data/secret/sensor_idx.txt")
     #read_key <- readLines("./data/secret/readkey.txt")
     # database <- readLines("./data/secret/participant.txt") |>
@@ -173,20 +173,84 @@ if (Sys.info()[[1]]=="Windows") {
     #     rawToChar() |>
     #     jsonlite::fromJSON() |>
     #     as.data.table()
-    confidential <- readxl::read_xlsx("./../data/secret/key2Yonghun_3_24_25.xlsx") |> as.data.table()
-    confidential[,`sensor index`:=as.character(`sensor index`)]
+    
+    read_sensor_list <- function() {
+        
+        # Sys.getenv("G_SHEET_KEY") |>
+        #     base64decode() |>
+        #     rawToChar() -> decoded_json
+        
+        
+        drive_auth(path = "./data/secret/ub-clean-air-efa0e0b9cec3.json") 
+        
+        temp_file <- tempfile(fileext = ".xlsx")
+        
+        
+        drive_download(
+            file = "https://docs.google.com/spreadsheets/d/1EgazNxjCNRtIx077Nt7NCVSUycktYGCW/edit?usp=sharing&ouid=107155354318382804011&rtpof=true&sd=true",
+            path = temp_file,
+            overwrite = TRUE
+        )
+        
+        df <- read_excel(temp_file)
+        
+        unlink(temp_file)
+        
+        return(df)
+        
+    }
+    
+    
+    confidential <- as.data.table(read_sensor_list())  |> _[`service status` ==1,
+    ][, `service status` := NULL
+    ][,`sensor index`:=as.character(`sensor index`)]
+    
+    # confidential <- readxl::read_xlsx("./../data/secret/key2Yonghun_3_24_25.xlsx") |> as.data.table()
+    # confidential[,`sensor index`:=as.character(`sensor index`)]
     
 } else{
     
     # For github actions Ubuntu env
     secret <- Sys.getenv("SECRET")
-    confidential <- Sys.getenv("DATABASE") |>
-         base64enc::base64decode() |>
-         rawToChar() |>
-         jsonlite::fromJSON() |>
-         as.data.table()
-    confidential[,`sensor index`:=as.character(`sensor index`)][
-    ,`start date`:=mdy(`start date`)]
+    # confidential <- Sys.getenv("DATABASE") |>
+    #      base64enc::base64decode() |>
+    #      rawToChar() |>
+    #      jsonlite::fromJSON() |>
+    #      as.data.table()
+    # confidential[,`sensor index`:=as.character(`sensor index`)][
+    # ,`start date`:=mdy(`start date`)]
+    
+    read_sensor_list <- function() {
+        
+        Sys.getenv("G_SHEET_KEY") |>
+            base64decode() |>
+            rawToChar() -> decoded_json
+        
+        
+        drive_auth(path = decoded_json) 
+        
+        temp_file <- tempfile(fileext = ".xlsx")
+        
+        
+        drive_download(
+            file = "https://docs.google.com/spreadsheets/d/1EgazNxjCNRtIx077Nt7NCVSUycktYGCW/edit?usp=sharing&ouid=107155354318382804011&rtpof=true&sd=true",
+            path = temp_file,
+            overwrite = TRUE
+        )
+        
+        df <- read_excel(temp_file)
+        
+        unlink(temp_file)
+        
+        return(df)
+        
+    }
+    
+    
+    confidential <- as.data.table(read_sensor_list())  |> _[`service status` ==1,][
+        , `service status` := NULL][
+        ,`sensor index`:=as.character(`sensor index`)][
+        ,`start date`:=mdy(`start date`)]
     
     
     # DB credentials
