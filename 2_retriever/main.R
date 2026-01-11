@@ -159,6 +159,8 @@ library("data.table")
 library(DBI)
 library(RPostgres)
 library(lubridate)
+library("googledrive")
+library("readxl")
 library(base64enc)
 
 
