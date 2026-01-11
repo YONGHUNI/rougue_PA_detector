@@ -164,31 +164,94 @@ nowPA <- function(offset = 300){ # default value: 5 minutes
   #     writeLines("./data/secret/participant.txt")
 
 library("data.table")
+library("googledrive")
+library("readxl")
+library("base64enc")
 
 if (Sys.info()[[1]]=="Windows") {
     
     # For my Windows Environment
     # Import the API key
-    secret <- readLines("./../data/secret/secret.txt")
-    sensor_idx <- readLines("./../data/secret/sensor_idx.txt")
-    read_key <- readLines("./../data/secret/readkey.txt")
-    database <- readLines("./../data/secret/participant.txt") |>
-        base64enc::base64decode() |>
-        rawToChar() |>
-        jsonlite::fromJSON() |>
-        as.data.table()
+    secret <- readLines("./data/secret/secret.txt")
+    sensor_idx <- readLines("./data/secret/sensor_idx.txt")
+    read_key <- readLines("./data/secret/readkey.txt")
+    # database <- readLines("./data/secret/participant.txt") |>
+    #     base64enc::base64decode() |>
+    #     rawToChar() |>
+    #     jsonlite::fromJSON() |>
+    #     as.data.table()
+    
+    
+    read_sensor_list <- function() {
+        
+        Sys.getenv("G_SHEET_KEY") |>
+            base64decode() |>
+            rawToChar() -> decoded_json
+        
+        
+        drive_auth(path = "./data/secret/ub-clean-air-efa0e0b9cec3.json") 
+        
+        temp_file <- tempfile(fileext = ".xlsx")
+        
+        
+        drive_download(
+            file = "https://docs.google.com/spreadsheets/d/1EgazNxjCNRtIx077Nt7NCVSUycktYGCW/edit?usp=sharing&ouid=107155354318382804011&rtpof=true&sd=true",
+            path = temp_file,
+            overwrite = TRUE
+        )
+        
+        df <- read_excel(temp_file)
+        
+        unlink(temp_file)
+        
+        return(df)
+        
+    }
+    
+    
+    database <- as.data.table(read_sensor_list())  |> _[`service status` ==1,
+                                                        ][, `service status` := NULL]
     
 } else{
     
     # For github actions Ubuntu env
     
-    secret <- Sys.getenv("SECRET")
-    database <- Sys.getenv("DATABASE")|>
-        base64enc::base64decode() |>
-        rawToChar() |>
-        jsonlite::fromJSON() |>
-        as.data.table()
+     secret <- Sys.getenv("SECRET")
+    # database <- Sys.getenv("DATABASE")|>
+    #     base64enc::base64decode() |>
+    #     rawToChar() |>
+    #     jsonlite::fromJSON() |>
+    #     as.data.table()
     
+    read_sensor_list <- function() {
+        
+        Sys.getenv("G_SHEET_KEY") |>
+            base64decode() |>
+            rawToChar() -> decoded_json
+        
+        
+        drive_auth(path = "./data/secret/ub-clean-air-efa0e0b9cec3.json") 
+        
+        temp_file <- tempfile(fileext = ".xlsx")
+        
+        
+        drive_download(
+            file = "https://docs.google.com/spreadsheets/d/1EgazNxjCNRtIx077Nt7NCVSUycktYGCW/edit?usp=sharing&ouid=107155354318382804011&rtpof=true&sd=true",
+            path = temp_file,
+            overwrite = TRUE
+        )
+        
+        df <- read_excel(temp_file)
+        
+        unlink(temp_file)
+        
+        return(df)
+        
+    }
+    
+    
+    database <- as.data.table(read_sensor_list())  |> _[`service status` ==1,
+    ][, `service status` := NULL]
     
     #deprecated
     #ghtoken <- Sys.getenv("TOKEN_GH")

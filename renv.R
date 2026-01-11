@@ -7,7 +7,8 @@ library("gh")
 library("base64enc")
 library("DBI")
 library("RPostgres")
-
+library("googledrive")
+library("readxl")
 
 #setwd("C:/Users/dydgn/OneDrive/Prof_Yoo/21_PAnotify")
 
@@ -15,6 +16,6 @@ library("RPostgres")
 # renv::status()
 # renv::snapshot()
 # renv::deactivate(clean = F)
-#renv::deactivate(clean = T)
+# renv::deactivate(clean = T)
 
 

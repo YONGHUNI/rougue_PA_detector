@@ -45,7 +45,8 @@ jobs:
       - name: run main.R
         env:
           SECRET: ${{ secrets.SECRET }}
-          DATABASE: ${{ secrets.DATABASE }}
+          G_SHEET_KEY: ${{ secrets.G_SHEET_KEY }}
+          #DATABASE: ${{ secrets.DATABASE }}
           #SENSOR_IDX: ${{ secrets.SENSOR_IDX }}
           #READ_KEY: ${{ secrets.READ_KEY }}
           #TOKEN_GH: ${{ secrets.TOKEN_GH }} 
