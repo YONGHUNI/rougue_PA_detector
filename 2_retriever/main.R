@@ -159,6 +159,7 @@ library("data.table")
 library(DBI)
 library(RPostgres)
 library(lubridate)
+library(base64decode)
 
 
 if (Sys.info()[[1]]=="Windows") {
