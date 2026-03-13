@@ -323,6 +323,6 @@ if (nrow(rogue_sensors)!=0) {
   
     
     writeLines(msg, "./msg")
-    fwrite(rogue_sensors,"./list.csv")
+    fwrite(rogue_sensors,"./list.csv") 
     
 }

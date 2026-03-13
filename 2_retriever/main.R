@@ -1,5 +1,4 @@
 
-
 # Get Sensor History
 ## https://api.purpleair.com/#api-sensors-get-sensor-history
 
