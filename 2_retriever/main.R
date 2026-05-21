@@ -251,8 +251,8 @@ if (Sys.info()[[1]]=="Windows") {
     
     confidential <- as.data.table(read_sensor_list())  |> _[`service status` ==1,][
         , `service status` := NULL][
-        ,`sensor index`:=as.character(`sensor index`)][
-        ,`start date`:=mdy(`start date`)]
+        ,`sensor index`:=as.character(`sensor index`)]#[
+        #,`start date`:=mdy(`start date`)]
     
     
     # DB credentials
