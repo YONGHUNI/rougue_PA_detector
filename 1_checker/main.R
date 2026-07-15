@@ -279,7 +279,7 @@ for (i in 1:length(database$`sensor index`)) {
         )
         
         cat(lubridate::now(tzone = "UTC")|>as.character(),"\n")
-        print(sensor_data[,c("date","time")])
+        print(sensor_data[,c("date","time","memory")])
         cat("\n\n\n")
         
         
