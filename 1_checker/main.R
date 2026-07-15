@@ -275,7 +275,7 @@ for (i in 1:length(database$`sensor index`)) {
                                           start_timestamp = nowPA(),
                                           read_key = database$`read key`[i],
                                           average = 0,
-                                          fields ="pa_latency"
+                                          fields ="memory"
         )
         
         cat(lubridate::now(tzone = "UTC")|>as.character(),"\n")
